@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 # Django settings for the GeoNode project.
 import os
+import geonode
 
 #
 # General Django development settings
 #
 
-# Defines the directory that contains the settings file as the PROJECT_ROOT
+# Defines the directory that contains the settings file as the GEONODE_ROOT
+# It is used for relative settings elsewhere.
 # It is used for relative settings elsewhere.
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+GEONODE_ROOT = os.path.dirname(geonode.__file__)
+
 
 # Setting debug to true makes Django serve static media and
 # present pretty error pages.
@@ -18,7 +22,7 @@ DEBUG = TEMPLATE_DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(PROJECT_ROOT, '..', '..', '..', 'development.db'),
+        'NAME': os.path.join(GEONODE_ROOT, '..', '..', '..', 'development.db'),
     }
 }
 
@@ -65,20 +69,25 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "static_root")
 # Example: "http://media.lawrence.com"
 STATIC_URL = "/static/"
 
+ADMIN_MEDIA_PREFIX = os.path.join(STATIC_URL, "admin/")
+
 # Additional directories which hold static files
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "static"),
+    os.path.join(GEONODE_ROOT, "static"),
+
 ]
 
 # Note that Django automatically includes the "templates" dir in all the
 # INSTALLED_APPS, se there is no need to add maps/templates or admin/templates
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, "templates"),
+    os.path.join(GEONODE_ROOT, "templates"),
 )
 
 # Location of translation files
 LOCALE_PATHS = (
-    os.path.join(PROJECT_ROOT, "locale"),
+    os.path.join(GEONODE_ROOT, "locale"),
 )
 
 # Make this unique, and don't share it with anybody.
@@ -336,8 +345,8 @@ MAP_BASELAYERS = [{
 }]
 
 #GEONODE_CLIENT_LOCATION = "http://localhost:8001/geonode-client/"
-GEONODE_CLIENT_LOCATION = "/static/geonode/"
-
+GEONODE_CLIENT_LOCATION = STATIC_URL + "geonode/"
+GEONODE_UPLOAD_PATH = os.path.join(MEDIA_ROOT,"geonode")
 
 # GeoNode vector data backend configuration.
 
