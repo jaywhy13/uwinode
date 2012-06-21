@@ -129,6 +129,12 @@
         height: 40px;
         background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
     }
+    .into_maps{
+        background-color: white;
+        width: 100%;
+        height: 100%;
+        min-height: 300px;
+    }
 
 </style>
 {% endblock %}
@@ -195,15 +201,19 @@
         GeoNode is an open source platform for sharing geospatial data and maps.  If you have any questions about the software or service, join our mailing list by emailing <em>geonode@librelist.com</em>.
         {% endblocktrans %}
     </p>
-    <p>
-        <a class="btn btn-large" href="{% url maps_search %}">
-            {% trans "Explore Maps" %}
-        </a>
-        <a class="btn btn-large" href="{% url maps_new %}">
-            {% trans "Create Map" %}
-        </a>
-    </p>{% endblock %}
+    <div class="into_maps">
+        <p>
+            <a class="btn btn-large" href="{% url maps_search %}">
+                {% trans "Explore Maps" %}
+            </a>
+            <a class="btn btn-large" href="{% url maps_new %}">
+                {% trans "Create Map" %}
+            </a>
+        </p>
+    </div>
+    {% endblock %}
 </div>
+<hr>
 <div class="span4">
     {% block sidebar %}
     <div class="">
