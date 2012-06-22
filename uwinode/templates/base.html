@@ -114,8 +114,8 @@
                 margin-top: -60px;
                 padding-top: 60px;
                 min-height: 550px;
-                  padding-left: 0px;
-                  padding-right: 0px;
+                padding-left: 0px;
+                padding-right: 0px;
                 background-image:  url({{ STATIC_URL }}theme/img/themeimgs/bgnoise.png);
             }
             #content_body_inner{
@@ -130,7 +130,17 @@
                 background-position: -45px top;
                 background-repeat: repeat-x;
                 height: 40px;
+                margin-bottom: 0;
+                padding: 20px 70px 0;
+                color: white;
                 background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+            }
+            .flags{
+                background-position: center center;
+                background-repeat: no-repeat;
+                height: 23px;
+                width: 132px;            
+                background-image: url({{ STATIC_URL }}theme/img/themeimgs/flags.png);
             }
         </style>
         {% endblock %}
@@ -159,8 +169,8 @@
                     </a>
                     <div class="nav-collapse">
                         <ul class="nav">                           
-                            <div class="span4">
-                                <form class="form-search" action="{% url data_search %}" method="POST">
+                            <div class="span5">
+                                <form class="form-search pull-right" action="{% url data_search %}" method="POST">
                                     {% csrf_token %}
                                     <input type="text" value="Search..." class="input-medium search-query" name="q">
                                     <button type="submit" class="btn btn-small">{% trans "Go" %}</button>
@@ -243,15 +253,40 @@
 
         </div>
         <div class="footer navbar">
-
+            {% block footer %}
+            <div class="pull-left">
+                {% trans "Powered by" %} <a href="http://geonode.org">{% trans "GeoNode" %}</a> |
+                <strong>{% trans "Need Help?" %}</strong>
+                <a href="{% url help %}">{% trans "Help" %}</a> |
+                <a href="{% url dev %}">{% trans "For Developers" %}</a>
+            </div>
+            <div class="pull-right">
+                {% if csrf_token != "NOTPROVIDED" %}
+                {% get_current_language as LANGUAGE %}
+                <form class="form-inline" action="/i18n/setlang/" method="post">
+                    {% csrf_token %}
+                    <label>{% trans "Language" %}</label>
+                    <select class="input" name="language" onchange="javascript:form.submit()">
+                        {% for lang in LANGUAGES %}
+                        <option value="{{ lang.0 }}" {% ifequal LANGUAGE_CODE lang.0 %} selected="selected"{% endifequal %}>
+                                {{ lang.1 }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% endif %}
         </div>
+        {% endblock %}
+        <div class="pull-right flags"></div>
+        <div class=""></div>
+    </div>
 
-        <script src="{{ STATIC_URL }}bootstrap/js/jquery-1.7.1.min.js"></script>
-        <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/jquery-1.7.1.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
 
-        {% block extra_script %}{% endblock extra_script %}
+    {% block extra_script %}{% endblock extra_script %}
 
-        <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
-        <script type="text/javascript" src="{% url lang %}"></script>
-    </body>
+    <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
+    <script type="text/javascript" src="{% url lang %}"></script>
+</body>
 </html>

@@ -127,13 +127,70 @@
         background-position: -45px top;
         background-repeat: repeat-x;
         height: 40px;
+        margin-bottom: 0;
+        padding: 20px 70px 0;
         background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+    }
+    .flags{
+        background-position: center center;
+        background-repeat: no-repeat;
+        height: 23px;
+        width: 132px;            
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/flags.png);
     }
     .into_maps{
         background-color: white;
-        width: 100%;
         height: 100%;
-        min-height: 300px;
+        min-height: 425px;
+        padding: 20px;
+        width: 90%;
+    }
+    td{
+        padding-bottom: 20px;
+    }
+    table{
+        width: 100%;
+    }
+    .welcomerow{
+        padding-bottom: 30px;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #4e4e4e;
+        font-weight: normal;
+    }
+    .upload_imgs{
+        padding: 10px;
+    }
+    .front_h3{
+        color: #de6125;
+    }
+    .front_img{
+        width: 130px;
+    }
+    .activity_log_header{
+        background-position: center center;
+        background-repeat: no-repeat;
+        height: 33px;
+        width: 100%;         
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/activity_log.png);
+    }
+    .activity{
+        background-color: white;
+        margin: 10px 30px;
+        padding: 10px 20px;
+    }
+    .user_flag{
+        background-position: left center;
+        background-repeat: no-repeat;
+        height: 23px;
+        width: 35px;
+        background-image:  url({{ STATIC_URL }}theme/img/themeimgs/flags.png);
+    } 
+    .divder{
+        height: 3px;
+        width: 100%;
+        margin: 15px 9px 10px 0;
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
     }
 
 </style>
@@ -194,48 +251,115 @@
 {% endblock %}
 
 {% block body_outer %}
-<div class="span8">
+<div class="span8" style=" padding: 0 30px 40px;">
     {% block main %}<h1>{% trans "Welcome" %}</h1>
     <p>
-        {% blocktrans %}
-        GeoNode is an open source platform for sharing geospatial data and maps.  If you have any questions about the software or service, join our mailing list by emailing <em>geonode@librelist.com</em>.
-        {% endblocktrans %}
+        {% blocktrans %}GeoNode is an open source platform for sharing geospatial data and maps.  If you have any questions about the software or service, join our mailing list by emailing <em>geonode@librelist.com</em>.{% endblocktrans%}
+        {% trans "GeoNode is an open source platform for sharing geospatial data and maps.  If you have any questions about the software or service, join our mailing list by emailing <em>geonode@librelist.com</em>." %}
     </p>
+
+
     <div class="into_maps">
-        <p>
-            <a class="btn btn-large" href="{% url maps_search %}">
-                {% trans "Explore Maps" %}
-            </a>
-            <a class="btn btn-large" href="{% url maps_new %}">
-                {% trans "Create Map" %}
-            </a>
-        </p>
+        <h3 class="front_h3">{% trans "Upload Data"%}</h3>
+        <div class="row welcomerow">
+            <div class="span3"> 
+
+                <img class="front_img" src="{{ STATIC_URL }}theme/img/themeimgs/upload_map_icon.png"/> 
+            </div>
+            <div class="span9 offset1">   
+                {% blocktrans %} GeoNode lets you upload, manage, and browse data. Search for data that is valuable to you, or upload your own data. {% endblocktrans %}
+                <p>
+                    <a class="btn btn-success" href="{% url data_upload %}">{% trans "UPLOAD DATA" %}>></a>
+                </p>
+            </div>
+        </div> <h3 class="front_h3">{% trans "Create Map" %}</h3> 
+        <div class="row welcomerow">
+            <div class="span3">                
+
+                <img class="front_img" src="{{ STATIC_URL }}theme/img/themeimgs/createmap.png"/>
+            </div>
+            <div class="span9 offset1">   
+                GeoNode lets you compose and share maps. Create a map with our cartography tool, or explore maps shared by others.
+                <p>
+                    <a class="btn btn-primary" href="{% url maps_new %}">
+                        {% trans "CREATE MAPS" %}>>
+                    </a>
+                </p>
+            </div>
+        </div>
+        <h3 class="front_h3">{% trans "Explore Maps"%}</h3>
+        <div class="row welcomerow">
+            <div class="span3"> 
+
+                <img class="front_img" src="{{ STATIC_URL }}theme/img/themeimgs/uploadmap.png"/>
+            </div>
+            <div class="span9 offset1">   
+                {% blocktrans %} Explore pre-made maps, and those made by website users, 
+                on such things as earthquake intensity, flood hazards, 
+                topography, road networks, current refugee shelters, health 
+                facilities, and much more.{% endblocktrans %}
+                <p>
+                    <a class="btn btn-success" href="{% url maps_search %}">
+                        {% trans "EXPLORE MAPS" %}>>
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <h3 class="front_h3">{% trans "Search for Data" %}</h3>
+        <div class="row welcomerow">
+            <div class="span3"> 
+
+            </div>
+            <div class="span9 offset1">   
+                <div>
+                    GeoNode lets browse data. Search for data that is valuable to you.
+                    <form class="form-search" action="{% url data_search %}" method="POST">
+                        {% csrf_token %}
+                        <input type="text" class="input-medium search-query" name="q">
+                        <button type="submit" class="btn btn-small">{% trans "Search" %}</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="divder"></div>
     {% endblock %}
 </div>
-<hr>
+
+
+
+
 <div class="span4">
     {% block sidebar %}
-    <div class="">
-        <h2> {% trans "Maps" %} </h2>
-        <p>
-            {% blocktrans %} 
-            GeoNode lets you compose and share maps.  <strong>Create</strong>
-            a map with our cartography tool, or <strong>explore</strong> maps
-            shared by others.
-            {% endblocktrans %} 
-        </p>
+
+    <div class="activity_log_header"> </div>
+    
+    <div class="activity">
+        <div class="user_flag pull-right"></div>
+        <h3 style="text-transform:uppercase;">Title of picture</h3>
+        <h4 style="text-transform: capitalize;">Dr. Ivery Brown</h4>
+        <h6 style="width: 150px;">5:00 pm (Eastern Time) Kingston, Jamaica</h6>
+        <div style="width: 100%; text-align: center;"> <img src="http://placehold.it/260x180" alt=""> </div>  
+        <p>Lorem ipsum dolor sit amet, consectetur 
+            adipisicing elit, sed do eiusmod tempor in
+            cididunt ut labore et dolore magna aliqua. 
+            Ut enim ad minim veniam, <a class="btn btn-primary btn-small" href=""> {% trans "More" %}>>   </a></p>         
     </div>
-    <div class="">
-        <h2> {% trans "Data" %} </h2>
-        <p>
-            {% blocktrans %} 
-            GeoNode lets you upload, manage, and browse data.  
-            <strong>Search</strong> for data that is valuable to you, or 
-            <strong>upload</strong> your own data.
-            {% endblocktrans %} 
-        </p>
+    
+    <div class="activity">
+        <div class="user_flag pull-right"></div>
+        <h3 style="text-transform:uppercase;">Title of picture</h3>
+        <h4 style="text-transform: capitalize;">Dr. Ivery Brown</h4>
+        <h6 style="width: 150px;">5:00 pm (Eastern Time) Kingston, Jamaica</h6>
+        <div style="width: 100%; text-align: center;"> <img src="http://placehold.it/260x180" alt=""> </div>  
+        <p>Lorem ipsum dolor sit amet, consectetur 
+            adipisicing elit, sed do eiusmod tempor in
+            cididunt ut labore et dolore magna aliqua. 
+            Ut enim ad minim veniam, <a class="btn btn-primary btn-small" href=""> {% trans "More" %}>>   </a></p>        
     </div>
+
     {% endblock %}
 </div>
 {% endblock %}
