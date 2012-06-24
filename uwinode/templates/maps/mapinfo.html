@@ -80,8 +80,10 @@
   <p><strong>{% trans "Contact:" %}</strong> <a href="{{ map.owner.get_profile.get_absolute_url }}">{{ map.owner }}</a></a></p>
     <h3>{% trans "Comments" %}</h3>
     <div class="comments_container">
-      {% set_disqus_url map.get_absolute_url %}
-      {% disqus_show_comments %}
+	  {% load disqus_tags %}
+	  {% set_disqus_identifier "map_" map.pk %}
+	  {% set_disqus_url request.build_absolute_uri %}
+	  {% disqus_show_comments %}
     </div>
 
     {% if request.user.is_authenticated %}
