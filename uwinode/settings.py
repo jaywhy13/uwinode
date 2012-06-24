@@ -2,6 +2,7 @@
 # Django settings for the GeoNode project.
 import os
 import geonode
+import uwinode
 
 #
 # General Django development settings
@@ -22,7 +23,7 @@ DEBUG = TEMPLATE_DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(GEONODE_ROOT, '..', '..', '..', 'development.db'),
+        'NAME': os.path.join('development.db'),
     }
 }
 
@@ -94,7 +95,7 @@ LOCALE_PATHS = (
 SECRET_KEY = 'myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a'
 
 # Location of url mappings
-ROOT_URLCONF = 'geonode.urls'
+ROOT_URLCONF = 'uwinode.urls'
 
 # Site id in the Django sites framework
 SITE_ID = 1
@@ -127,6 +128,10 @@ INSTALLED_APPS = (
     'geonode.core',
     'geonode.maps',
     'geonode.proxy',
+
+    # uwinode additions
+    'uwinode',
+    'disqus',
 
 )
 
@@ -361,9 +366,15 @@ DB_DATASTORE_HOST = ''
 DB_DATASTORE_PORT = ''
 DB_DATASTORE_TYPE = ''
 
+# Disqus information
+DISQUS_API_KEY = 'Zs19xzoKo9frFAZZvjbh2cPH82D3MEFCXOUghyKiOVIsC1OBNEh4pp62vZkIz7fW'
+DISQUS_WEBSITE_SHORTNAME = 'mgidemo'
+
 
 # Load more settings from a file called local_settings.py if it exists
 try:
     from local_settings import *
 except ImportError:
     pass
+
+
