@@ -195,9 +195,8 @@
 	<h3>{% trans "Comments" %}</h3>
 	<div class="comments_container">
 	  {% load disqus_tags %}
-	  {% disqus_dev %}
 	  {% set_disqus_identifier "layer_" layer.pk %}
-	  {% set_disqus_url layer.get_absolute_url %}
+	  {% set_disqus_url request.build_absolute_uri %}
 	  {% disqus_show_comments %}
 	</div>
 
