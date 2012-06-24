@@ -10,6 +10,7 @@ import math
 
 register = template.Library()
 
+DEFAULT_THUMBNAIL_SIZE = 90
 
 """ Util functions ==============================================
 """
@@ -32,6 +33,8 @@ def combine_bboxes(bboxes):
             if bbox[2] < final_bbox[2]:
                 final_bbox[2] = bbox[2]
     return final_bbox
+
+
 
 def squarify_bbox(bbox):
     """ Transforms a rectangular bounding box into a square
@@ -80,6 +83,74 @@ def pad_bbox(bbox, padding=0.3):
 
     return bbox
 
+def scale_bbox(bbox, width, height):
+    """ scales a given bbox into the dimensions given
+    """
+    if width == height:
+        return bbox
+
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+
+    ratio = dx / dy
+    target_ratio = float(width) / float(height)
+    
+    if ratio == target_ratio:
+        return bbox
+
+    print "Pre-scaling"
+    print "Source: dx: %s, dy: %s, ratio: %s" % (dx, dy, ratio)
+    print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
+    print bbox
+    
+    if target_ratio >= 1:
+        # the target is wider than long
+        if ratio >= 1:
+            if ratio >= target_ratio: 
+                # consider scaling 4x1 to 10x5
+                print "Scaling in here..."
+                padding_y = ((dx / target_ratio) - dy)/2
+                bbox[2] = float(bbox[2]) - padding_y
+                bbox[3] = float(bbox[3]) + padding_y
+            else:
+                # consider scale 4x3 to 10x5
+                padding_x = ((target_ratio * dy) - dx)/2
+                bbox[0] = float(bbox[0]) - padding_x
+                bbox[1] = float(bbox[1]) + padding_x
+        else: # ratio is less than one
+            # consider scaling 1x3 to 10x5
+            padding_x = ((target_ratio * dy) - dx)/2
+            bbox[0] = float(bbox[0]) - padding_x
+            bbox[1] = float(bbox[1]) + padding_x
+    else:
+        # the target ratio is longer than wide
+        # consider scaling 4x2 to 2x5
+        if ratio >= 1:
+            padding_y = ((dx/target_ratio)-dy)/2
+            bbox[2] = float(bbox[2]) - padding_y
+            bbox[3] = float(bbox[3]) + padding_y
+        else:
+            if ratio < target_ratio:
+                # consider scaling 1x4 to 2x5
+                padding_x = ((target_ratio * dy) - dx)/2
+                bbox[0] = float(bbox[0]) - padding_x
+                bbox[1] = float(bbox[1]) + padding_x
+            else:
+                # consider scaling 3x4 to 2x5
+                padding_y = ((dx/target_ratio)-dy)/2
+                bbox[2] = float(bbox[2]) - padding_y
+                bbox[3] = float(bbox[3]) + padding_y
+
+
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+    ratio = dx / dy
+    print "Post-scaling"
+    print "Source: dx: %s, dy: %s, ratio: %s" % (dx, dy, ratio)
+    print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
+    print bbox
+    return bbox
+
 def center_bbox(bbox):
     """ Centers the content in the bounding box based on its dims
     """
@@ -100,14 +171,17 @@ def center_bbox(bbox):
         bbox[1] = float(bbox[1]) + padding
     return bbox
 
-def adjust_bbox_for_google(bbox, size=90):
+def adjust_bbox_for_google(bbox, width=DEFAULT_THUMBNAIL_SIZE, height=None):
     """ Adjusts the bounding box so that it will match Google's nearest zoom level
     """
+    if not height:
+        height = width
+
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
     
-    google_zoom_level = get_gmaps_zoom_level(bbox[1], bbox[0], size)
-    google_angle = get_gmaps_angle_for_zoom_level(google_zoom_level, size)
+    google_zoom_level = get_gmaps_zoom_level(bbox[1], bbox[0], width)
+    google_angle = get_gmaps_angle_for_zoom_level(google_zoom_level, width)
     
     google_padding_x = float((google_angle - dx)/2)
     google_padding_y = float((google_angle - dy)/2)
@@ -120,14 +194,16 @@ def adjust_bbox_for_google(bbox, size=90):
     
     return bbox
 
-def format_bbox(layer, size=90, padding=0.3, google_padding=True):
+def format_bbox(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, padding=0.3, google_padding=True):
     """ formats a bbox for a layer, giving it padding and adjusts it for Google maps bg
     """
-    if size <= 0:
-        size = 50
+    if width <= 0:
+        width = DEFAULT_THUMBNAIL_SIZE
 
-    width = size
-    height = size
+    width = width
+
+    if not height:
+        height = width
 
     if not layer:
         return 
@@ -137,20 +213,25 @@ def format_bbox(layer, size=90, padding=0.3, google_padding=True):
     # pad the bbox
     bbox = pad_bbox(bbox, padding)
 
-    # center the image and update the bounding boxes 
-    bbox = center_bbox(bbox)
+    # scale the bbox
+    if width != height:
+        bbox = scale_bbox(bbox, width, height)
+    else:
+        # center the image and update the bounding boxes 
+        bbox = center_bbox(bbox)
 
     # put in padding for google now
     if google_padding:
         # recalculate dx and dy
-        bbox = adjust_bbox_for_google(bbox)
+        # bbox = adjust_bbox_for_google(bbox)
+        pass
 
     return bbox
 
 
 """ Gmaps functions ==============================================
 """
-def get_gmaps_angle_for_zoom_level(zoom, width=90):
+def get_gmaps_angle_for_zoom_level(zoom, width=DEFAULT_THUMBNAIL_SIZE):
     """ This function gets the width (angle) that a given zoom level spans
     we use this information to adjust our bounding box so that it will fit
     Google maps backdrop image.
@@ -165,7 +246,7 @@ def get_gmaps_angle_for_zoom_level(zoom, width=90):
     pow = math.log(k * w) - (z * ln2)
     return math.pow(math.e,pow)
 
-def get_gmaps_zoom_level(east_lon,west_lon, image_width=90):
+def get_gmaps_zoom_level(east_lon,west_lon, image_width=DEFAULT_THUMBNAIL_SIZE):
     """ returns the zoom level for google maps given an east and west long coord
     """
     GLOBE_WIDTH = 256
@@ -176,14 +257,18 @@ def get_gmaps_zoom_level(east_lon,west_lon, image_width=90):
     zoom = round(math.log(image_width * 360 / angle / GLOBE_WIDTH) / math.log(2))
     return int(zoom)
 
-def get_gmaps_container_html(gmaps_thumbnail_src, content, size=90):
+def get_gmaps_container_html(gmaps_thumbnail_src, content, width=DEFAULT_THUMBNAIL_SIZE, height=None):
     """ Returns a div container for with gmaps as the bg and supplied content within it
     """
-    div_html = "<div class='thumbmail' style=\"position:relative; width:%spx; height:%spx; background-image:url('%s')\">\n %s\n </div>" % (size, size, gmaps_thumbnail_src, content)
+    if not height:
+        height = width
+
+
+    div_html = "<div class='thumbmail' style=\"position:relative; width:%spx; height:%spx; background-image:url('%s')\">\n %s\n </div>" % (width, height, gmaps_thumbnail_src, content)
     return div_html
 
-def get_img_thumbnail_html(layer, size=90, draw_background=True, map_layer=None):
-    """ Returns the html for the image thumbnail. If the gmaps src is included, the image will be wrapped in a div
+def get_img_thumbnail_html(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, draw_background=True, map_layer=None):
+    """ Returns the html for the image thumbnail.
     """
     if map_layer:
         zindex = map_layer.stack_order
@@ -191,10 +276,14 @@ def get_img_thumbnail_html(layer, size=90, draw_background=True, map_layer=None)
     else:
         zindex = 1
 
+    if not height:
+        height = width
+
     context = {
         'layer' : layer,
         'map_layer' : map_layer,
-        'size' : size,
+        'width' : width,
+        'height' : height,
         'zindex' : zindex,
         'draw_background' : draw_background
         }
@@ -206,11 +295,15 @@ def get_img_thumbnail_html(layer, size=90, draw_background=True, map_layer=None)
 
 """ Url functions ==============================================
 """
-def get_thumbnail_link(layer, size=90, bbox=None):
-    """ returns the link for a layer given the size and an optional bbox
+def get_thumbnail_link(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, bbox=None):
+    """ returns the link for a layer given the width and an optional bbox
     """
+    if not height:
+        height = width
+
+
     if not bbox:
-        bbox = format_bbox(layer, size)
+        bbox = format_bbox(layer, width)
 
     bbox_string = ",".join([str(bbox[0]), str(bbox[2]), str(bbox[1]), str(bbox[3])])
     srs = 'EPSG:4326'
@@ -220,8 +313,8 @@ def get_thumbnail_link(layer, size=90, bbox=None):
             'request': 'GetMap',
             'layers': layer.typename,
             'format': "image/png",
-            'height': size,
-            'width': size,
+            'height': width,
+            'width': width,
             'srs': srs,
             'bbox': bbox_string,
             'transparent' : 'True'
@@ -229,19 +322,22 @@ def get_thumbnail_link(layer, size=90, bbox=None):
     return url
 
 
-def get_gmaps_thumbnail_link(layer, size=90, bbox=None):
-    """ returns the link for a thumbnail for gmaps given a layer and it's size and optional bbox
+def get_gmaps_thumbnail_link(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, bbox=None):
+    """ returns the link for a thumbnail for gmaps given a layer and it's width and optional bbox
     """
+    if not height:
+        height = width
+
     if not bbox:
-        bbox = format_bbox(layer, size)
+        bbox = format_bbox(layer, width, height)
     
-    zoom = get_gmaps_zoom_level(bbox[1], bbox[0], size)
+    zoom = get_gmaps_zoom_level(bbox[1], bbox[0], width)
     center_lat = float((bbox[2] + bbox[3])/2)
     center_lon = float((bbox[0] + bbox[1])/2)
     
     url = "http://maps.googleapis.com/maps/api/staticmap?" + urllib.urlencode({
             'zoom' : zoom,
-            'size' : '%sx%s' % (size,size),
+            'size' : '%sx%s' % (width,height),
             'maptype' : 'roadmap',
             'sensor' : 'false',
             'center' : '%s,%s' % (center_lat, center_lon)
@@ -255,35 +351,43 @@ class LayerThumbnailNode(template.Node):
     """ This class represents a node that renders out the thumbnail for a layer
     """ 
 
-    def __init__(self, layer_var_name, size=90):
-        """ We store the name of the variable and the size if provided
+    def __init__(self, layer_var_name, width=DEFAULT_THUMBNAIL_SIZE, height=None):
+        """ We store the name of the variable and the width if provided
         """
         self.layer_var_name = layer_var_name
-        self.size = size
+        self.width = width
+        self.height = height
+
+        if not self.height:
+            self.height = self.width
+
         
     def render(self, context, layer=None):
         """ Renders out a div with a gmaps bg and the img preview in an IMG node
         """
         self.layer = context[self.layer_var_name]
 
-        thumbnail_src = get_thumbnail_link(self.layer, self.size)
-        gmaps_thumbnail_src = get_gmaps_thumbnail_link(self.layer, self.size)
-        html = get_img_thumbnail_html(self.layer, self.size)
+        html = get_img_thumbnail_html(self.layer, width=self.width, height=self.height)
         return html
 
 
 
 class MapThumbnailNode(template.Node):
-    def __init__(self, map_var_name, size=90):
+    def __init__(self, map_var_name, width=DEFAULT_THUMBNAIL_SIZE, height=None):
         self.map_var_name = map_var_name
-        self.size = size
+        self.width = width
+        self.height = height
+
+        if not self.height:
+            self.height = self.width
+
 
     def render(self, context):
-        # check on the size ... this might be a variable
+        # check on the width ... this might be a variable
         try:
-            self.size = int(self.size)
+            self.width = int(self.width)
         except Exception:
-            self.size = int(context[self.size])
+            self.width = int(context[self.width])
 
         map = context[self.map_var_name]
 
@@ -321,37 +425,45 @@ class MapThumbnailNode(template.Node):
         img_html = ""
         for layer in layers:
             map_layer = map_layers[i-1]
-            thumbnail_src = get_thumbnail_link(layer, self.size, bbox=map_bbox)
-            img_html += get_img_thumbnail_html(layer, size=self.size, map_layer=map_layer, draw_background=False)
+            thumbnail_src = get_thumbnail_link(layer, self.width, bbox=map_bbox)
+            img_html += get_img_thumbnail_html(layer, width=self.width, map_layer=map_layer, draw_background=False)
             i+=1
 
-        gmaps_thumbnail_src = get_gmaps_thumbnail_link(layers[0], size=self.size, bbox=map_bbox)        
-        div_html = get_gmaps_container_html(gmaps_thumbnail_src, img_html, size=self.size)
+        gmaps_thumbnail_src = get_gmaps_thumbnail_link(layers[0], width=self.width, height=self.height, bbox=map_bbox)        
+        div_html = get_gmaps_container_html(gmaps_thumbnail_src, img_html, width=self.width, height=self.height)
 
         return div_html
 
 
 class ThumbnailLinkNode(template.Node):
 
-    def __init__(self, layer_var_name, size=90, bbox_var_name=None):
+    def __init__(self, layer_var_name, width=DEFAULT_THUMBNAIL_SIZE, height=None, bbox_var_name=None):
         self.layer_var_name = layer_var_name
-        self.size = size
+        self.width = width
+        self.height = height
+        if not self.height:
+            self.height = self.width
+
         self.bbox_var_name = bbox_var_name
 
     def retrieve_context_vars(self, context):
         # get the variables from the context
         try: # a variable might be used... 
-            self.size = int(self.size)
+            self.width = int(self.width)
         except Exception:
-            self.size = int(context[self.size])
+            self.width = int(context[self.width])
+
+        try:
+            self.height = int(self.height)
+        except Exception:
+            self.height = int(context[self.height])
             
         self.layer = context[self.layer_var_name]
-        self.bbox = context.get(self.bbox_var_name, format_bbox(self.layer,self.size))
-        
+        self.bbox = context.get(self.bbox_var_name, format_bbox(self.layer,self.width, self.height))
 
     def render(self, context):
         self.retrieve_context_vars(context)
-        url = get_thumbnail_link(self.layer, self.size, self.bbox)
+        url = get_thumbnail_link(self.layer, self.width, self.height, self.bbox)
         return url
 
 
@@ -359,9 +471,8 @@ class GmapsThumbnailLinkNode(ThumbnailLinkNode):
 
     def render(self, context):
         self.retrieve_context_vars(context)
-        url = get_gmaps_thumbnail_link(self.layer, self.size, self.bbox)
+        url = get_gmaps_thumbnail_link(self.layer, self.width, self.height, self.bbox)
         return url
-
 
 
         
@@ -373,11 +484,10 @@ def layer_thumbnail(parser, token):
     """
     pieces = token.split_contents()
     tag_name, layer = pieces[0], pieces[1]
-    if len(pieces) >= 3:
-        size = pieces[2]
-    else:
-        size = None
-    return LayerThumbnailNode(layer, size)
+    width = arr_get(pieces,2,DEFAULT_THUMBNAIL_SIZE)
+    height = arr_get(pieces,3,width)
+
+    return LayerThumbnailNode(layer, width, height)
 
 @register.tag(name="map_thumbnail")
 def map_thumbnail(parser, token):
@@ -386,10 +496,12 @@ def map_thumbnail(parser, token):
     pieces = token.split_contents()
     tag_name, map = pieces[0], pieces[1]
     if len(pieces) is 3:
-        size = pieces[2]
+        width = pieces[2]
     else:
-        size = 90
-    return MapThumbnailNode(map, size)
+        width = DEFAULT_THUMBNAIL_SIZE
+
+    height = arr_get(pieces,3,width)
+    return MapThumbnailNode(map, width, height)
 
 
 @register.tag(name='gmaps_thumbnail_link')
@@ -397,12 +509,12 @@ def gmaps_thumbnail_link(parser, token):
     """ Returns a link for google maps static api map for a thumbnail bg for our layer
     """
     pieces = token.split_contents()
-    tag_name, layer_var_name, size, bbox_var_name = pieces[0], pieces[1], arr_get(pieces,2,90), arr_get(pieces,3,None)
-    return GmapsThumbnailLinkNode(layer_var_name, size, bbox_var_name)
+    tag_name, layer_var_name, width, height, bbox_var_name = pieces[0], pieces[1], arr_get(pieces,2,DEFAULT_THUMBNAIL_SIZE), arr_get(pieces,3,None), arr_get(pieces,4,None)
+    return GmapsThumbnailLinkNode(layer_var_name, width, height, bbox_var_name)
 
 @register.tag(name='thumbnail_link')
 def thumbnail_link(parser, token):
     pieces = token.split_contents()
-    tag_name, layer_var_name, size, bbox_var_name = pieces[0], pieces[1], arr_get(pieces,2,90), arr_get(pieces,3,None)
-    return ThumbnailLinkNode(layer_var_name, size, bbox_var_name)
+    tag_name, layer_var_name, width, height, bbox_var_name = pieces[0], pieces[1], arr_get(pieces,2,DEFAULT_THUMBNAIL_SIZE), arr_get(pieces,3,None), arr_get(pieces,4,None)
+    return ThumbnailLinkNode(layer_var_name, width, height, bbox_var_name)
 
