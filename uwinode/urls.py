@@ -24,8 +24,8 @@ sitemaps = {
 urlpatterns = patterns('',
 
     # Static pages
-    url(r'^$', 'django.views.generic.simple.direct_to_template',
-                {'template': 'index.html'}, name='home'),
+    url(r'^$', 'uwinode.views.home',name='home'),
+#                {'template': 'index.html', 'extra_context' : {'foo':'bar'}}, name='home'),
     url(r'^help/$', 'django.views.generic.simple.direct_to_template',
                 {'template': 'help.html'}, name='help'),
     url(r'^developer/$', 'django.views.generic.simple.direct_to_template',
