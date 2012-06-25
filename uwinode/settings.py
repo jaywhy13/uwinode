@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     # uwinode additions
     'uwinode',
     'disqus',
+    'countries',
 
 )
 
@@ -369,6 +370,9 @@ DB_DATASTORE_TYPE = ''
 # Disqus information
 DISQUS_API_KEY = 'Zs19xzoKo9frFAZZvjbh2cPH82D3MEFCXOUghyKiOVIsC1OBNEh4pp62vZkIz7fW'
 DISQUS_WEBSITE_SHORTNAME = 'mgidemo'
+
+# Countries
+COUNTRIES_FLAG_PATH = STATIC_URL + "flags/%s.png"
 
 
 # Load more settings from a file called local_settings.py if it exists
