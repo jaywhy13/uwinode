@@ -1,15 +1,14 @@
 {% load layer_extras %}
+{% load i18n %}
 
-<div class="latest_layers">
-  {% for layer in layers %}
-  <div class="layer_preview">
-    <div class="layer_title">
-      {{ layer.title }}
-    </div>
-    {% layer_thumbnail layer 260 180 %}
-  </div>
-
-    {% empty %}
-    No layers
-    {% endfor %}
+<div class="activity">
+  <div class="user_flag pull-right"></div>
+  <h3 style="text-transform:uppercase;">{{layer.title}}</h3>
+  <h4 style="text-transform: capitalize;">{% firstof layer.owner.get_full_name layer.owner.username %}</h4>
+  <h6 style="width: 150px;">{{ layer.date|date:"D d M Y" }}</h6>
+  <div style="width: 100%;">{% layer_thumbnail layer 260 180 %}</div>  
+  </br>
+  <p>{{ layer.abstract }} <a class="btn btn-primary btn-small"
+    href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>         
 </div>
+
