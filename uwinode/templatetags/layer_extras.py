@@ -62,6 +62,11 @@ def get_layer_bbox(layer):
     
     for i in range(0,4):
         bbox[i] = float(resource.latlon_bbox[i])
+
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+    print "Layer orig ratio is: %s" % (dx/dy)
+
     return bbox
 
 
@@ -81,6 +86,11 @@ def pad_bbox(bbox, padding=0.3):
     bbox[2] = float(bbox[2]) - padding_y
     bbox[3] = float(bbox[3]) + padding_y
 
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+    print "Layer ratio after padding is: %s" % (dx/dy)
+
+
     return bbox
 
 def scale_bbox(bbox, width, height):
@@ -98,10 +108,10 @@ def scale_bbox(bbox, width, height):
     if ratio == target_ratio:
         return bbox
 
-    print "Pre-scaling"
-    print "Source: dx: %s, dy: %s, ratio: %s" % (dx, dy, ratio)
-    print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
-    print bbox
+    #print "Pre-scaling"
+    #print "Source: dx: %s, dy: %s, ratio: %s" % (dx, dy, ratio)
+    #print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
+    #print bbox
     
     if target_ratio >= 1:
         # the target is wider than long
@@ -109,35 +119,35 @@ def scale_bbox(bbox, width, height):
             if ratio >= target_ratio: 
                 # consider scaling 4x1 to 10x5
                 print "Scaling in here..."
-                padding_y = ((dx / target_ratio) - dy)/2
+                padding_y = ((dx / target_ratio) - dy)/2.0
                 bbox[2] = float(bbox[2]) - padding_y
                 bbox[3] = float(bbox[3]) + padding_y
             else:
                 # consider scale 4x3 to 10x5
-                padding_x = ((target_ratio * dy) - dx)/2
+                padding_x = ((target_ratio * dy) - dx)/2.0
                 bbox[0] = float(bbox[0]) - padding_x
                 bbox[1] = float(bbox[1]) + padding_x
         else: # ratio is less than one
             # consider scaling 1x3 to 10x5
-            padding_x = ((target_ratio * dy) - dx)/2
+            padding_x = ((target_ratio * dy) - dx)/2.0
             bbox[0] = float(bbox[0]) - padding_x
             bbox[1] = float(bbox[1]) + padding_x
     else:
         # the target ratio is longer than wide
         # consider scaling 4x2 to 2x5
         if ratio >= 1:
-            padding_y = ((dx/target_ratio)-dy)/2
+            padding_y = ((dx/target_ratio)-dy)/2.0
             bbox[2] = float(bbox[2]) - padding_y
             bbox[3] = float(bbox[3]) + padding_y
         else:
             if ratio < target_ratio:
                 # consider scaling 1x4 to 2x5
-                padding_x = ((target_ratio * dy) - dx)/2
+                padding_x = ((target_ratio * dy) - dx)/2.0
                 bbox[0] = float(bbox[0]) - padding_x
                 bbox[1] = float(bbox[1]) + padding_x
             else:
                 # consider scaling 3x4 to 2x5
-                padding_y = ((dx/target_ratio)-dy)/2
+                padding_y = ((dx/target_ratio)-dy)/2.0
                 bbox[2] = float(bbox[2]) - padding_y
                 bbox[3] = float(bbox[3]) + padding_y
 
@@ -145,10 +155,13 @@ def scale_bbox(bbox, width, height):
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
     ratio = dx / dy
-    print "Post-scaling"
-    print "Source: dx: %s, dy: %s, ratio: %s" % (dx, dy, ratio)
-    print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
-    print bbox
+    #print "Post-scaling"
+    #print "Source: dx: %s, dy: %s, ratio: %s" % (dx, dy, ratio)
+    #print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
+    #print bbox
+
+    print "Layer ratio after scaling is: %s" % (dx/dy)
+
     return bbox
 
 def center_bbox(bbox):
@@ -169,6 +182,11 @@ def center_bbox(bbox):
         padding = float((dx * dataAspect)-dx) / 2
         bbox[0] = float(bbox[0]) - padding
         bbox[1] = float(bbox[1]) + padding
+
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+    print "Layer ratio after centering is: %s" % (dx/dy)
+
     return bbox
 
 def adjust_bbox_for_google(bbox, width=DEFAULT_THUMBNAIL_SIZE, height=None):
@@ -179,18 +197,32 @@ def adjust_bbox_for_google(bbox, width=DEFAULT_THUMBNAIL_SIZE, height=None):
 
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
+
+    print "Ratio before google adjustments: %s" % (dx/dy)
     
-    google_zoom_level = get_gmaps_zoom_level(bbox[1], bbox[0], width)
-    google_angle = get_gmaps_angle_for_zoom_level(google_zoom_level, width)
-    
-    google_padding_x = float((google_angle - dx)/2)
-    google_padding_y = float((google_angle - dy)/2)
+    google_zoom_level = float(get_gmaps_zoom_level(bbox[1], bbox[0], float(width)))
+    google_angle = get_gmaps_angle_for_zoom_level(google_zoom_level, float(width))
+
+    print "Google zoom level is: %s, and angle is: %s, dx is %s" % (google_zoom_level, google_angle, dx)
+    google_padding_x = float((dx - google_angle)/2.0)
+    google_padding_y = (((google_padding_x * 2.0)/ dx) * dy)/2
+
+    print "Padding selected is: (%s, %s)" % (google_padding_x, google_padding_y)
     
     bbox[0] = float(bbox[0]) - google_padding_x
     bbox[1] = float(bbox[1]) + google_padding_x
     
     bbox[2] = float(bbox[2]) - google_padding_y
     bbox[3] = float(bbox[3]) + google_padding_y
+
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+
+
+    print "Layer ratio after google adjustment is %s/%s = %s" % (dx,dy,dx/dy)
+    print "Bbox returned by google is: %s" % bbox
+
+
     
     return bbox
 
@@ -223,8 +255,13 @@ def format_bbox(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, padding=0.3, g
     # put in padding for google now
     if google_padding:
         # recalculate dx and dy
-        # bbox = adjust_bbox_for_google(bbox)
-        pass
+        bbox = adjust_bbox_for_google(bbox)
+
+
+    dx = float(bbox[1]) - float(bbox[0])
+    dy = float(bbox[3]) - float(bbox[2])
+    print "Layer ratio after formatting is %s/%s = %s" % (dx,dy,dx/dy)
+    print "Bbox formatting now returns is: %s" % bbox
 
     return bbox
 
@@ -332,8 +369,8 @@ def get_gmaps_thumbnail_link(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, b
         bbox = format_bbox(layer, width, height)
     
     zoom = get_gmaps_zoom_level(bbox[1], bbox[0], width)
-    center_lat = float((bbox[2] + bbox[3])/2)
-    center_lon = float((bbox[0] + bbox[1])/2)
+    center_lat = float((bbox[2] + bbox[3])/2.0)
+    center_lon = float((bbox[0] + bbox[1])/2.0)
     
     url = "http://maps.googleapis.com/maps/api/staticmap?" + urllib.urlencode({
             'zoom' : zoom,
@@ -389,6 +426,11 @@ class MapThumbnailNode(template.Node):
         except Exception:
             self.width = int(context[self.width])
 
+        try:
+            self.height = int(self.height)
+        except Exception:
+            self.height = int(context[self.height])
+
         map = context[self.map_var_name]
 
         layers = []
@@ -418,15 +460,16 @@ class MapThumbnailNode(template.Node):
 
        
         map_bbox = combine_bboxes(bboxes)
-        map_bbox = squarify_bbox(map_bbox)
+        map_bbox = scale_bbox(map_bbox, self.width, self.height)
+        #map_bbox = squarify_bbox(map_bbox)
         
         # Now loop again and get the urls for each img
         i = 1
         img_html = ""
         for layer in layers:
             map_layer = map_layers[i-1]
-            thumbnail_src = get_thumbnail_link(layer, self.width, bbox=map_bbox)
-            img_html += get_img_thumbnail_html(layer, width=self.width, map_layer=map_layer, draw_background=False)
+            thumbnail_src = get_thumbnail_link(layer, width=self.width, height=self.height, bbox=map_bbox)
+            img_html += get_img_thumbnail_html(layer, width=self.width, height=self.height, map_layer=map_layer, draw_background=False)
             i+=1
 
         gmaps_thumbnail_src = get_gmaps_thumbnail_link(layers[0], width=self.width, height=self.height, bbox=map_bbox)        
@@ -491,16 +534,18 @@ def layer_thumbnail(parser, token):
 
 @register.tag(name="map_thumbnail")
 def map_thumbnail(parser, token):
-    """ displays a thumbnail for the map e.g. {% map_thumbnail map %}
+    """ displays a thumbnail for the map e.g. {% map_thumbnail map width height %}
     """
     pieces = token.split_contents()
+    print pieces
     tag_name, map = pieces[0], pieces[1]
-    if len(pieces) is 3:
-        width = pieces[2]
-    else:
+    try:
+        width = int(arr_get(pieces, 2, DEFAULT_THUMBNAIL_SIZE))
+    except Exception as e:
+        print e
         width = DEFAULT_THUMBNAIL_SIZE
 
-    height = arr_get(pieces,3,width)
+    height = arr_get(pieces, 3, width)
     return MapThumbnailNode(map, width, height)
 
 
