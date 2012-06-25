@@ -1,0 +1,15 @@
+{% load layer_extras %}
+
+<div class="latest_layers">
+  {% for layer in layers %}
+  <div class="layer_preview">
+    <div class="layer_title">
+      {{ layer.title }}
+    </div>
+    {% layer_thumbnail layer 260 180 %}
+  </div>
+
+    {% empty %}
+    No layers
+    {% endfor %}
+</div>

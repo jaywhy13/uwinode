@@ -1,0 +1,14 @@
+{% load layer_extras %}
+
+<div class="latest_maps">
+  {% for map in maps %}
+  <div class="map_preview">
+    <div class="map_title">
+      {{ map.title }}
+    </div>
+    {% map_thumbnail map 260 180 %}
+  </div>
+  {% empty %}
+  No maps
+  {% endfor %}
+</div>
