@@ -1,7 +1,7 @@
 {% load layer_extras %}
 <img class="layer_thumbnail" 
      src="{% thumbnail_link layer width height %}"
-     style="z-index:{{ zindex }}; position:absolute; width:{{ width }}px; 
+     style="z-index:{{ zindex }}; width:{{ width }}px; 
 	    height:{{ height }}px; background-repeat:no-repeat;background-size:100%;
 	    background-position:top left; {% if draw_background %}
 	    background-image:url('{% gmaps_thumbnail_link layer width height %}');{% endif %}"/>
