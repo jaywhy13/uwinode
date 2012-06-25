@@ -171,13 +171,14 @@
         background-position: center center;
         background-repeat: no-repeat;
         height: 33px;
-        width: 100%;         
+        width: 340px;         
         background-image: url({{ STATIC_URL }}theme/img/themeimgs/activity_log.png);
     }
     .activity{
         background-color: white;
-        margin: 10px 30px;
         padding: 10px 20px;
+    margin-bottom:10px;
+    width:300px;
     }
     .user_flag{
         background-position: left center;
@@ -330,36 +331,13 @@
 
 
 
-
 <div class="span4">
-    {% block sidebar %}
-
-    <div class="activity_log_header"> </div>
-    
-    <div class="activity">
-        <div class="user_flag pull-right"></div>
-        <h3 style="text-transform:uppercase;">Title of picture</h3>
-        <h4 style="text-transform: capitalize;">Dr. Ivery Brown</h4>
-        <h6 style="width: 150px;">5:00 pm (Eastern Time) Kingston, Jamaica</h6>
-        <div style="width: 100%; text-align: center;"> <img src="http://placehold.it/260x180" alt=""> </div>  
-        <p>Lorem ipsum dolor sit amet, consectetur 
-            adipisicing elit, sed do eiusmod tempor in
-            cididunt ut labore et dolore magna aliqua. 
-            Ut enim ad minim veniam, <a class="btn btn-primary btn-small" href=""> {% trans "More" %}>>   </a></p>         
-    </div>
-    
-    <div class="activity">
-        <div class="user_flag pull-right"></div>
-        <h3 style="text-transform:uppercase;">Title of picture</h3>
-        <h4 style="text-transform: capitalize;">Dr. Ivery Brown</h4>
-        <h6 style="width: 150px;">5:00 pm (Eastern Time) Kingston, Jamaica</h6>
-        <div style="width: 100%; text-align: center;"> <img src="http://placehold.it/260x180" alt=""> </div>  
-        <p>Lorem ipsum dolor sit amet, consectetur 
-            adipisicing elit, sed do eiusmod tempor in
-            cididunt ut labore et dolore magna aliqua. 
-            Ut enim ad minim veniam, <a class="btn btn-primary btn-small" href=""> {% trans "More" %}>>   </a></p>        
-    </div>
-
-    {% endblock %}
+  {% block sidebar %}
+  {% load countries_tags %}
+  <div class="activity_log_header"> </div>
+  {% for layer in layers %}
+  {% include "maps/latest_layers.html" with layer=layer %}
+  {% endfor %}
+  {% endblock %}
 </div>
 {% endblock %}
