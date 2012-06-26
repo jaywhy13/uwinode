@@ -167,6 +167,10 @@
     .front_img{
         width: 130px;
     }
+
+    .activity IMG.raty-2 {
+    width:12px;
+    }
     .activity_log_header{
         background-position: center center;
         background-repeat: no-repeat;
@@ -235,8 +239,8 @@
                 <div class="icons  navbar pull-right">
                     <ul class="pull-right nav">
                         <li> <a href="{% url home %}"> <div id="home_icon"></div></a></li>
-                        <li> <a href="{% url geonode.maps.views.browse_data %}"> <div id="data_icon"></div></a></li>
-                        <li><a href="{% url geonode.maps.views.maps %}"> <div id="maps_icon"></div></a></li>
+                        <li> <a href="{% url geonode.maps.views.search_page %}"> <div id="data_icon"></div></a></li>
+                        <li><a href="{% url geonode.maps.views.maps_search_page %}"> <div id="maps_icon"></div></a></li>
                     </ul>            
                 </div> 
             </li>
@@ -255,7 +259,6 @@
     {% block main %}<h1>{% trans "Welcome" %}</h1>
     <p>
         {% blocktrans %}GeoNode is an open source platform for sharing geospatial data and maps.  If you have any questions about the software or service, join our mailing list by emailing <em>geonode@librelist.com</em>.{% endblocktrans%}
-        {% trans "GeoNode is an open source platform for sharing geospatial data and maps.  If you have any questions about the software or service, join our mailing list by emailing <em>geonode@librelist.com</em>." %}
     </p>
 
 
@@ -339,3 +342,19 @@
   {% endblock %}
 </div>
 {% endblock %}
+
+{% block extra_script %}
+
+<script src="{{ STATIC_URL }}agon_ratings/js/jquery.raty.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$('div.overall_rating').raty({
+			half: true,
+			readOnly: true,
+			start: $('div.overall_rating').data('rating'),
+			path: "{{ STATIC_URL }}agon_ratings/img/"
+		});
+	});
+</script>
+{% endblock %}
+
