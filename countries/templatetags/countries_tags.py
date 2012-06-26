@@ -28,7 +28,6 @@ iso_flag = stringfilter(iso_flag)
 def layer_flag(layer):
 	if layer:
 		center = get_layer_center(layer)
-		print "Got center %s" % center
 		gmaps = GoogleMaps(settings.GOOGLE_API_KEY)
 		lat = center.get('lat',None)
 		lng = center.get('lng', None)
