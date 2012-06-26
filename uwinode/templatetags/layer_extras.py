@@ -69,6 +69,21 @@ def get_layer_bbox(layer):
 
     return bbox
 
+def get_layer_center(layer):
+    """ Returns the center
+    """
+    bbox = get_layer_bbox(layer)
+    if bbox:
+        lat = (bbox[2] + bbox[3]) / 2.0
+        lng = (bbox[0] + bbox[1]) / 2.0
+        return {
+            "lat" : lat,
+            "lng" : lng,
+            "x" : lng,
+            "y" : lat
+            }
+    return None
+
 
 def pad_bbox(bbox, padding=0.3):
     """ Applies a padding to the bounding box (0-1.0)
