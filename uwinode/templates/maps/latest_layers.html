@@ -1,8 +1,13 @@
 {% load layer_extras %}
+{% load countries_tags %}
 {% load i18n %}
 
 <div class="activity">
-  <div class="user_flag pull-right"></div>
+  <div class="user_flag pull-right">
+    {% autoescape off %}
+    {{ layer|layer_flag }}
+    {% endautoescape %}
+  </div>
   <h3 style="text-transform:uppercase;">{{layer.title}}</h3>
   <h4 style="text-transform: capitalize;">{% firstof layer.owner.get_full_name layer.owner.username %}</h4>
   <h6 style="width: 150px;">{{ layer.date|date:"D d M Y" }}</h6>
