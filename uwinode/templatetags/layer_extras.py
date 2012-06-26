@@ -65,7 +65,7 @@ def get_layer_bbox(layer):
 
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
-    print "Layer orig ratio is: %s" % (dx/dy)
+    #print "Layer orig ratio is: %s" % (dx/dy)
 
     return bbox
 
@@ -103,7 +103,7 @@ def pad_bbox(bbox, padding=0.3):
 
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
-    print "Layer ratio after padding is: %s" % (dx/dy)
+    #print "Layer ratio after padding is: %s" % (dx/dy)
 
 
     return bbox
@@ -133,7 +133,7 @@ def scale_bbox(bbox, width, height):
         if ratio >= 1:
             if ratio >= target_ratio: 
                 # consider scaling 4x1 to 10x5
-                print "Scaling in here..."
+                #print "Scaling in here..."
                 padding_y = ((dx / target_ratio) - dy)/2.0
                 bbox[2] = float(bbox[2]) - padding_y
                 bbox[3] = float(bbox[3]) + padding_y
@@ -175,7 +175,7 @@ def scale_bbox(bbox, width, height):
     #print "Target: %s, height: %s, ratio: %s" % (width, height, target_ratio)
     #print bbox
 
-    print "Layer ratio after scaling is: %s" % (dx/dy)
+    #print "Layer ratio after scaling is: %s" % (dx/dy)
 
     return bbox
 
@@ -200,7 +200,7 @@ def center_bbox(bbox):
 
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
-    print "Layer ratio after centering is: %s" % (dx/dy)
+    #print "Layer ratio after centering is: %s" % (dx/dy)
 
     return bbox
 
@@ -213,16 +213,16 @@ def adjust_bbox_for_google(bbox, width=DEFAULT_THUMBNAIL_SIZE, height=None):
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
 
-    print "Ratio before google adjustments: %s" % (dx/dy)
+    #print "Ratio before google adjustments: %s" % (dx/dy)
     
     google_zoom_level = float(get_gmaps_zoom_level(bbox[1], bbox[0], float(width)))
     google_angle = get_gmaps_angle_for_zoom_level(google_zoom_level, float(width))
 
-    print "Google zoom level is: %s, and angle is: %s, dx is %s" % (google_zoom_level, google_angle, dx)
+    #print "Google zoom level is: %s, and angle is: %s, dx is %s" % (google_zoom_level, google_angle, dx)
     google_padding_x = float((dx - google_angle)/2.0)
     google_padding_y = (((google_padding_x * 2.0)/ dx) * dy)/2
 
-    print "Padding selected is: (%s, %s)" % (google_padding_x, google_padding_y)
+    #print "Padding selected is: (%s, %s)" % (google_padding_x, google_padding_y)
     
     bbox[0] = float(bbox[0]) - google_padding_x
     bbox[1] = float(bbox[1]) + google_padding_x
@@ -234,8 +234,8 @@ def adjust_bbox_for_google(bbox, width=DEFAULT_THUMBNAIL_SIZE, height=None):
     dy = float(bbox[3]) - float(bbox[2])
 
 
-    print "Layer ratio after google adjustment is %s/%s = %s" % (dx,dy,dx/dy)
-    print "Bbox returned by google is: %s" % bbox
+    #print "Layer ratio after google adjustment is %s/%s = %s" % (dx,dy,dx/dy)
+    #print "Bbox returned by google is: %s" % bbox
 
 
     
@@ -275,8 +275,8 @@ def format_bbox(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, padding=0.3, g
 
     dx = float(bbox[1]) - float(bbox[0])
     dy = float(bbox[3]) - float(bbox[2])
-    print "Layer ratio after formatting is %s/%s = %s" % (dx,dy,dx/dy)
-    print "Bbox formatting now returns is: %s" % bbox
+    #print "Layer ratio after formatting is %s/%s = %s" % (dx,dy,dx/dy)
+    #print "Bbox formatting now returns is: %s" % bbox
 
     return bbox
 
@@ -364,6 +364,34 @@ def get_thumbnail_link(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, bbox=No
             'service': 'WMS',
             'request': 'GetMap',
             'layers': layer.typename,
+            'format': "image/png",
+            'height': width,
+            'width': width,
+            'srs': srs,
+            'bbox': bbox_string,
+            'transparent' : 'True'
+            })
+    return url
+
+def get_bg_thumbnail_link(layer, width=DEFAULT_THUMBNAIL_SIZE, height=None, bbox=None):
+    """ returns the link for a layer given the width and an optional bbox
+    """
+    if not height:
+        height = width
+
+
+    if not bbox:
+        bbox = format_bbox(layer, width)
+
+    bbox_string = ",".join([str(bbox[0]), str(bbox[2]), str(bbox[1]), str(bbox[3])])
+    srs = 'EPSG:4326'
+
+    base_url = "http://maps.opengeo.org/geowebcache/service/wms?"
+
+    url = base_url + urllib.urlencode({
+            'service': 'WMS',
+            'request': 'GetMap',
+            'layers': "bluemarble",
             'format': "image/png",
             'height': width,
             'width': width,
@@ -552,12 +580,10 @@ def map_thumbnail(parser, token):
     """ displays a thumbnail for the map e.g. {% map_thumbnail map width height %}
     """
     pieces = token.split_contents()
-    print pieces
     tag_name, map = pieces[0], pieces[1]
     try:
         width = int(arr_get(pieces, 2, DEFAULT_THUMBNAIL_SIZE))
     except Exception as e:
-        print e
         width = DEFAULT_THUMBNAIL_SIZE
 
     height = arr_get(pieces, 3, width)
