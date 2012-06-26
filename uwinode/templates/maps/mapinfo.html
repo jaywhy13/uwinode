@@ -69,6 +69,7 @@
   {% overall_rating map "map" as map_rating %}
   <h2>{{ map.title }}</h2>
   <div class="overall_rating" data-rating="{{ map_rating }}"></div>
+  <br/>
   <g:plusone size="small" href="http://{{ request.get_host }}{{ request.get_full_path }}"></g:plusone>
   <div class="fb-like" data-href="http://{{ request.get_host }}{{ request.get_full_path }}" data-send="false" data-width="50" data-layout="button_count" data-show-faces="false"></div>
 	  
@@ -90,6 +91,7 @@
     <h3>{% trans "Rate this map" %}</h3>
     {% user_rating request.user map "map" as user_map_rating %}
     <div id="user_rating" class="category-map"></div>
+    <br/>
     {% endif %}
 {% endblock %}
 
@@ -125,7 +127,7 @@
   </ul>
 {% endblock %}
 
-{% block end_body_js %}
+{% block extra_script %}
 {% if request.user.is_authenticated %}
 	{% user_rating_js request.user map "map" %}
 {% else %}
