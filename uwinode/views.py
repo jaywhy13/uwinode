@@ -1,55 +1,8 @@
-from django.http import HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext, loader
-from geonode.maps.models import *
+from uwinode.maps.views import *
 
-def metadata_search_latest(request):
-    if request.method == 'GET':
-        params = request.GET
-    elif request.method == 'POST':
-        params = request.POST
-    else:
-        return HttpResponse(status=405)
+LATEST_LIMIT = 3
 
-    LATEST_LIMIT = 1
-
-    layers = Layer.objects.order_by('-date')
-    count = layers.count()
-    limit = LATEST_LIMIT
-
-    try:
-        limit = int(params.get('limit', LATEST_LIMIT))
-    except Exception:
-        pass
-    
-    limit = min(limit, LATEST_LIMIT)
-    
-    latest = []
-    
-    if count:
-        for layer in layers:
-            if request.user.has_perm('maps.view_layer', obj=layer):
-                latest.append(layer)
-                if len(latest) >= limit:
-                    break
-
-    context = {
-        "total" : limit,
-        "layers" : latest
-        }
-
-    return render_to_response("maps/latest_layers.html", RequestContext(request, context))
-
-
-def maps_search_latest(request):
-    if request.method == 'GET':
-        params = request.GET
-    elif request.method == 'POST':
-        params = request.POST
-    else:
-        return HttpResponse(status=405)
-
-    LATEST_LIMIT = 2
+def get_latest_maps(user):
 
     maps = Map.objects.reverse()
     count = maps.count()
@@ -66,14 +19,38 @@ def maps_search_latest(request):
 
     if count:
         for map in maps:
-            if request.user.has_perm('maps.view_map', obj=map):
+            if user.has_perm('maps.view_map', obj=map):
                 latest.append(map)
                 if len(latest) >= limit:
                     break
+    return maps
 
-    context = {
-        "total" : limit,
-        "maps" : latest
-        }
+def get_latest_layers(user):
 
-    return render_to_response("maps/latest_maps.html", RequestContext(request, context))
+    layers = Layer.objects.reverse()
+    count = layers.count()
+    limit = LATEST_LIMIT
+
+    try:
+        limit = int(params.get('limit', LATEST_LIMIT))
+    except Exception:
+        pass
+    
+    limit = min(limit, LATEST_LIMIT)
+    
+    latest = []
+    
+    if count:
+        for layer in layers:
+            if user.has_perm('maps.view_layer', obj=layer):
+                latest.append(layer)
+                if len(latest) >= limit:
+                    break
+    return latest
+    
+
+def home(request):
+    layers = get_latest_layers(request.user)
+    maps = get_latest_maps(request.user)
+    context = {'layers' : layers, 'maps' : maps }
+    return render_to_response("index.html", RequestContext(request,context))
