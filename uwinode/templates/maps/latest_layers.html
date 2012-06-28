@@ -10,7 +10,7 @@
     {% endautoescape %}
   </div>
 
-  <h3 style="text-transform:uppercase;">{{layer.title|truncatewords:2}}</h3>
+  <h3 style="text-transform:uppercase;">{{layer.title|truncatewords:4}}</h3>
   {% overall_rating layer "layer" as layer_rating %}
   <div class="overall_rating" data-rating="{{ layer_rating }}"></div>
   <h4 style="text-transform: capitalize;">{% firstof layer.owner.get_full_name layer.owner.username %}</h4>
