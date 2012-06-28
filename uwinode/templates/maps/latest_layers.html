@@ -15,7 +15,7 @@
   <div class="overall_rating" data-rating="{{ layer_rating }}"></div>
   <h4 style="text-transform: capitalize;">{% firstof layer.owner.get_full_name layer.owner.username %}</h4>
   <h6 style="width: 150px;">{{ layer.date|date:"D d M Y" }}</h6>
-  <div style="width: 100%;">{% layer_thumbnail layer 260 180 %}</div>  
+  <div style="width: 100%;">{% layer_thumbnail layer 260 260 %}</div>  
   </br>
   <p>{{ layer.abstract }} <a class="btn btn-primary btn-small"
     href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>         
