@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load bootstrap_tags %}
+
+{% block title %} {% trans "Search Maps" %} - {{ block.super }} {% endblock %}
+
+{% block head %}
+{% include "geonode/ext_header.html" %}
+{% include "geonode/app_header.html" %}
+{{ block.super }}
+<script type="text/javascript">
+    Ext.onReady(function(){
+        {% autoescape off %}
+ 
+        var searchTable = new GeoNode.MapSearchTable({
+            renderTo: 'search_results',
+            trackSelection: true,
+            permalinkURL: '{% url maps_search %}',
+            searchURL: '{% url maps_search_api %}',
+            searchParams: {{init_search}}
+        });
+
+
+        {% endautoescape %}
+    });
+</script>
+<style>
+    {%block morestyles%}
+    .front_h3{
+        color: #de6125;
+        font-size:30px;
+        text-transform: uppercase;
+    }
+    .front_h2{
+        color: #de6125;
+        font-size:20px;
+    }
+    #latest_feed{
+        /* margin-left:10px;*/
+        height: 100px;
+        margin-bottom: 45px;
+        width: 105%;
+    }
+    .feed{
+        background-color: white;
+        display: block;
+        float: left;
+        /* margin-right: 10px;*/
+        width: 330px;
+        padding: 5px 5px 0;
+    }
+    .feed_pic{
+        height: 100px;
+        width:100px;
+        float: left;
+        margin-right: 20px;
+    }
+    .content_body{
+        margin-top:-90px;
+    }   
+    .content_area{
+        background-color: white;
+        min-height: 530px !important;
+        padding: 10px;
+        margin-bottom:10px;
+        width: 103%;
+    }
+
+    .sep_strip{
+        height: 5px;
+        /*  margin-left: -50%;*/
+        margin-top: 10px;
+        position: absolute;
+        top: 385px;
+        width: 94%;
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+    }
+    
+    .x-grid3-col-title a{
+        color:#35aab4;
+    }
+    #ext-gen3{
+        border: 1px solid #d1d1d1;
+    }
+    
+    {% endblock %}    
+</style>
+
+{% endblock %}
+
+{% block body_outer %}
+<h1><small class="front_h2">{% trans "Latest Maps" %}</small></h1>
+
+
+<div id="latest_feed">
+    <div class="feed span4">
+        <div class="user_flag pull-right">  </div> 
+        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
+        <div class="overall_rating"></div>
+        <h4 style="text-transform: capitalize;">Billy Jean</h4>
+        <h6>June 1, 2010</h6>
+        <p>this is alot of conversation about something im not sure. 
+            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+    </div>
+    <div class="feed span4">
+        <div class="user_flag pull-right">  </div> 
+        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
+        <div class="overall_rating"></div>
+        <h4 style="text-transform: capitalize;">Sammy Joe</h4>
+        <h6>June 2, 2010</h6>
+        <p>this is alot of conversation about something im not sure. 
+            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+    </div>
+    <div class="feed span4">
+        <div class="user_flag pull-right">  </div> 
+        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
+        <div class="overall_rating"></div>
+        <h4 style="text-transform: capitalize;">Mike Ross</h4>
+        <h6>July 5, 2010</h6>
+        <p>56 Char. this is alot of conversation about something.
+            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+    </div>
+
+</div>
+<div class="sep_strip"></div>
+<div class="content_area">
+
+    <h1 style="margin-bottom: 20px;">
+        <span class="front_h3" style="font-weight:normal;">{% trans "SEARCH " %} </span>
+        <small class="subtitle">{% trans "for Maps" %}</small> 
+    </h1>
+
+    <div id="search_results"></div>  
+
+    <p class="explain">{%trans "Click the <b>+</b> on any row to show map abstract." %}
+        {% trans "To bookmark your current search use this" %} <a href="#" class="permalink">{% trans "permalink" %}</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+
+{% endblock %}

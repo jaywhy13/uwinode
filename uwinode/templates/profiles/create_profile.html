@@ -1,0 +1,20 @@
+{% extends "profiles/base.html" %}
+
+{% load i18n %}
+{% load bootstrap_tags %}
+
+
+
+{% block body_outer %}
+{% block pageTitle%}<legend>{% trans "Create Profile" %}</legend>{% endblock %} 
+  <form action="" class="form-horizontal" method="post">
+    
+    {% csrf_token %}
+    <div class="form-controls">
+      {{ form|as_bootstrap }}
+    </div>
+    <div class="form-actions">
+      <input type="submit" value="{% trans "Create Profile" %}" class="btn btn-primary"/>
+    </div>
+  </form>
+{% endblock %}

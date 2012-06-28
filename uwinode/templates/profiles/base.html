@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+<style>
+    {%block morestyles%}
+    .front_h3{
+        color: #de6125;
+        font-size:30px;
+        text-transform: uppercase;
+    }
+    .front_h2{
+        color: #de6125;
+        font-size:20px;
+    }
+    .sep_strip{
+        height: 5px;
+        /*  margin-left: -50%;*/
+        margin-top: 10px;
+        position: absolute;
+        top: 270px;
+        width: 94%;
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+    }
+    .nav-header{        
+        color:#d04f18 !important; 
+        margin-left:-25px  !important; 
+        margin-bottom:10px;
+    }
+    .x-column-inner {
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    .x-panel-body {
+        margin-top: 5px;
+    }
+    #content_body_inner {
+        margin-top: -20px;
+    }
+    .body-header{
+        color:#6acbdc;
+    }
+
+    {% endblock %}    
+</style>
+
+
+{% block body_outer %}
+<h1>
+    <small class="front_h2" style=" float: left;">{% block pageTitle%}{% endblock %} </small>
+</h1>
+
+<div class="sep_strip"></div>
+
+
+<div class="row" style="margin-top: 75px; margin-bottom: 75px;">
+    
+    <div class="span8" style="padding:5px 20px; background-color:white; min-height: 350px;">
+        {% block main %}
+        {% endblock %}
+    </div>
+
+    <div class="span4" style="padding:15px 10px 20px; background-color:white;">
+        {% block sidebar %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

@@ -7,7 +7,7 @@
         {% block head %}
         <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
         {% block styles %}
-        <style>
+        <style>           
             body {
                 padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
             }
@@ -135,6 +135,9 @@
                 color: white;
                 background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
             }
+            .footer a{
+                color: white;
+            }
             .flags{
                 background-position: center center;
                 background-repeat: no-repeat;
@@ -142,6 +145,9 @@
                 width: 132px;            
                 background-image: url({{ STATIC_URL }}theme/img/themeimgs/flags.png);
             }
+             {%block morestyles%}
+             
+            {% endblock %}
         </style>
         {% endblock %}
         <link href="{{ STATIC_URL }}theme/site.css" rel="stylesheet">

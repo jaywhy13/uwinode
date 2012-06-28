@@ -1,0 +1,65 @@
+{% extends "registration/base.html" %}
+{% load i18n %}
+{% load bootstrap_tags %}
+
+{% block title %} {% trans "Log in" %} — {{ block.super }}{% endblock %}
+<style>
+    {%block morestyles%}
+
+    #login_form{
+        background-color: white;
+        margin-top: -15px;
+        padding: 10px;
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+    .sep_strip{
+        height: 5px;
+        margin-left: -50%;
+        position: absolute;
+        top: 290px;
+        width: 200%;
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+    }
+    .front_h3{
+        color: #de6125;
+        font-size:30px;
+    }
+    .form-controls, .form-actions{
+        margin-left: 100px; 
+        margin-right: 100px;
+    }
+    .form-actions{
+        background: none;
+        border: none;
+        padding-left: 0px;
+    }
+    {% endblock %}
+</style>
+
+
+{% block body_outer %}
+<div class="sep_strip"></div>
+<div id="login_form">
+    <legend> <h1><small class="front_h3">{% block legend%} {% trans "LOG IN" %}{% endblock %}</small></h1></legend>
+    <div style="padding-top:15px;">
+        {% block body_inners%}
+        <form  method="post" action="{% url auth_login %}">
+            {% csrf_token %}
+            {% block form_control%}
+            <input type="hidden" name="next" value="{{ next }}" />
+            <div class="form-controls">
+                {{ form|as_bootstrap }}
+            </div>
+            {% endblock %}
+
+            {% block form_action%} 
+            <div class="form-actions">
+                <input type="submit" class="btn btn-info" value="Log in"/> | <a href="{% url auth_password_reset %}" class="">{% trans "Forgot password?" %}</a>           
+            </div>
+            {% endblock %}
+        </form>
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}
