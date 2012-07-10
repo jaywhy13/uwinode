@@ -4,7 +4,7 @@ LATEST_LIMIT = 3
 
 def get_latest_maps(user):
 
-    maps = Map.objects.reverse()
+    maps = Map.objects.order_by('-last_modified')
     count = maps.count()
     limit = LATEST_LIMIT
 
@@ -27,7 +27,7 @@ def get_latest_maps(user):
 
 def get_latest_layers(user):
 
-    layers = Layer.objects.reverse()
+    layers = Layer.objects.order_by('-date')
     count = layers.count()
     limit = LATEST_LIMIT
 
