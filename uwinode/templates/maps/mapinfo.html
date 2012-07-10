@@ -9,144 +9,211 @@
 {% block title %}{{ map.title }} — {{ block.super }}{% endblock %}
 
 {% block head %}
-  {% include "geonode/ext_header.html" %}
-  {% include "geonode/app_header.html" %}
-  {% include "geonode/geo_header.html" %}
-  {{ block.super }}
-  <script type="text/javascript">
-  var app;
-  Ext.onReady(function() {
-  {% has_obj_perm user map "maps.change_map_permissions" as can_change_permissions %}
-  {% autoescape off %}
-      var config = Ext.apply({
-          useToolbar: false,
-          proxy: "/proxy/?url=",
-          rest: "/maps/",
+{% include "geonode/ext_header.html" %}
+{% include "geonode/app_header.html" %}
+{% include "geonode/geo_header.html" %}
+{{ block.super }}
+<script type="text/javascript">
+    var app;
+    Ext.onReady(function() {
+        {% has_obj_perm user map "maps.change_map_permissions" as can_change_permissions %}
+        {% autoescape off %}
+        var config = Ext.apply({
+            useToolbar: false,
+            proxy: "/proxy/?url=",
+            rest: "/maps/",
 
-          // tell the map viewer where and how to be rendered
-          portalConfig: {
-              height: 300,
-              renderTo: "embedded_map"
-          }
-      }, {{ config }});
-      app = new GeoExplorer.Viewer(config);
-  {% if can_change_permissions %}
-      new GeoNode.PermissionsEditor({
-          levels: {
-              'admin': 'map_admin',
-              'readwrite': 'map_readwrite',
-              'readonly': 'map_readonly',
-              '_none': '_none'
-          },
-          renderTo: "permissions_form",
-          userLookup: "{% url auth_ajax_lookup %}",
-          permissions: {{ permissions_json }},
-          listeners: {
-              updated: function(perms) {
-                  var submitTo = "{% url maps_ajax_perm map.id %}";
-                  Ext.Ajax.request({ url: submitTo, jsonData: perms.writePermissions() });
-              }
-          }
-      });
-  {% endif %}
-  {% endautoescape %}
-  });
-  </script>
+            // tell the map viewer where and how to be rendered
+            portalConfig: {
+                height: 300,
+                renderTo: "embedded_map"
+            }
+        }, {{ config }});
+        app = new GeoExplorer.Viewer(config);
+        {% if can_change_permissions %}
+        new GeoNode.PermissionsEditor({
+            levels: {
+                'admin': 'map_admin',
+                'readwrite': 'map_readwrite',
+                'readonly': 'map_readonly',
+                '_none': '_none'
+            },
+            renderTo: "permissions_form",
+            userLookup: "{% url auth_ajax_lookup %}",
+            permissions: {{ permissions_json }},
+            listeners: {
+                updated: function(perms) {
+                    var submitTo = "{% url maps_ajax_perm map.id %}";
+                    Ext.Ajax.request({ url: submitTo, jsonData: perms.writePermissions() });
+                }
+            }
+        });
+        {% endif %}
+        {% endautoescape %}
+    });
+</script>
 {% endblock %}
 
 {% block start_body_js %}
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 {% endblock %}
 
-{% block main %}
-  {% overall_rating map "map" as map_rating %}
-  <h2>{{ map.title }}</h2>
-  <div class="overall_rating" data-rating="{{ map_rating }}"></div>
-  <br/>
-  <g:plusone size="small" href="http://{{ request.get_host }}{{ request.get_full_path }}"></g:plusone>
-  <div class="fb-like" data-href="http://{{ request.get_host }}{{ request.get_full_path }}" data-send="false" data-width="50" data-layout="button_count" data-show-faces="false"></div>
-	  
-  <p><strong>{% trans "Abstract:" %}</strong> {{ map.abstract }}</p>
-  <p><strong>{% trans "Keywords:" %}</strong> {{map.keywords.all|join:", "}}
+<style>
+    {%block morestyles%}
+    .front_h3{
+        color: #de6125;
+        font-size:30px;
+        text-transform: uppercase;
+    }
+    .front_h2{
+        color: #de6125;
+        font-size:20px;
+    }
+    .sep_strip{
+        height: 5px;
+        /*  margin-left: -50%;*/
+        margin-top: 10px;
+        position: absolute;
+        top: 270px;
+        width: 94%;
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+    }
+    .nav-header{        
+        color:#d04f18 !important; 
+        margin-left:-25px  !important; 
+        margin-bottom:10px;
+    }
+    .x-column-inner {
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    .x-panel-body {
+        margin-top: 5px;
+    }
+    #content_body_inner {
+        margin-top: -20px;
+    }
+    .body-header{
+        color:#6acbdc;
+    }
 
-  <div id="embedded_map">
-  </div>
-  <p><strong>{% trans "Contact:" %}</strong> <a href="{{ map.owner.get_profile.get_absolute_url }}">{{ map.owner }}</a></a></p>
-    <h3>{% trans "Comments" %}</h3>
-    <div class="comments_container">
-	  {% load disqus_tags %}
-	  {% set_disqus_identifier "map_" map.pk %}
-	  {% set_disqus_url request.build_absolute_uri %}
-	  {% disqus_show_comments %}
+    {% endblock %}    
+</style>
+
+{% block body_outer %}
+<h1>
+    <small class="front_h2" style=" float: left;">{{ map.title }}</small>
+    <div>
+        {% overall_rating map "map" as map_rating %}
+        <div class="overall_rating" style="    float: left; margin-left: 10px;" data-rating="{{ map_rating }}"></div>
+    </div>
+</h1>
+
+<div class="sep_strip"></div>
+
+<div class="row" style="margin-top: 75px; margin-bottom: 75px;">
+    <div class="span8" style="padding:5px 20px; background-color:white; min-height: 350px;">
+        {% block main %}
+
+        <div id="embedded_map"></div>
+        <div class="row">
+            <div class="span8">
+                <br>
+                <p><strong class="body-header">{% trans "Abstract:" %}</strong> {{ map.abstract }}</p>
+                <p><strong class="body-header">{% trans "Keywords:" %}</strong> {{map.keywords.all|join:", "}}</p>
+            </div>
+            <div class="span4">
+                <div class="pull-right">
+                    <div style=" padding-bottom: 10px; padding-top: 10px;"> <a href="{% url maps_download map.id %}" class="btn btn-large btn-primary">Download</a></div>
+                    <g:plusone size="small" href="http://{{ request.get_host }}{{ request.get_full_path }}"></g:plusone>
+                    <div class="fb-like" data-href="http://{{ request.get_host }}{{ request.get_full_path }}" data-send="false" data-width="50" data-layout="button_count" data-show-faces="false"></div>      
+
+                    {% if request.user.is_authenticated %}
+                    <h4 class="body-header">{% trans "Rate this map" %}</h4>
+                    {% user_rating request.user map "map" as user_map_rating %}
+                    <div id="user_rating" class="category-map"></div>
+                    <br/>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <h3 class="body-header">{% trans "Comments" %}</h3>
+        <div class="comments_container">
+            {% load disqus_tags %}
+            {% set_disqus_identifier "map_" map.pk %}
+            {% set_disqus_url request.build_absolute_uri %}
+            {% disqus_show_comments %}
+        </div>
+
+
+        {% endblock %}
     </div>
 
-    {% if request.user.is_authenticated %}
-    <h3>{% trans "Rate this map" %}</h3>
-    {% user_rating request.user map "map" as user_map_rating %}
-    <div id="user_rating" class="category-map"></div>
-    <br/>
-    {% endif %}
-{% endblock %}
+    <div class="span4" style="padding:15px 10px 20px; background-color:white;">
+        {% block sidebar %}
+        <ul class="nav nav-list">
+            <!-- <li class="nav-header">{% trans "Download" %}</li>
+             <li><a href="{% url maps_download map.id %}">{% trans "Download all layers included in this map" %}</a></li>
+            -->
+            <li class="nav-header">{% trans "Contact:" %}</li>
+            <li><p> <a href="{{ map.owner.get_profile.get_absolute_url }}">{{ map.owner }}</a></a></p></li>
+            <li class="nav-header">{% trans "Layers" %}</li>
+            {% for layer in layers %}
+            {% if not layer.group == "background" %}
+            <li>{% autoescape off %}{{layer.local_link}}{% endautoescape %}</li>
+            {% endif %}
+            {% endfor %}
 
-{% block sidebar %}
-  <ul class="nav nav-list">
-    <li class="nav-header">{% trans "Download" %}</li>
-    <li><a href="{% url maps_download map.id %}">{% trans "Download all layers included in this map" %}</a></li>
-    
-    <li class="nav-header">{% trans "Layers" %}</li>
-    {% for layer in layers %}
-      {% if not layer.group == "background" %}
-        <li>{% autoescape off %}{{layer.local_link}}{% endautoescape %}</li>
-      {% endif %}
-    {% endfor %}
-    
-    <li class="nav-header">{% trans "Manage" %}</li>
-    {% has_obj_perm user map "maps.change_map" as can_change %}
-    {% has_obj_perm user map "maps.delete_map" as can_delete %}
-    <li><a href="{% url maps_view map.id %}">{% trans "View or edit this map" %}</a></li>
-    {% if can_change %}
-    <li><a href="{% url maps_controller map.id %}?describe">{% trans "Edit metadata" %}</a></li>
-    {% endif %}
-    {% if can_delete %}
-    <li><a href="{% url maps_controller map.id %}?remove">{% trans "Delete map" %}</a></li>
-    {% endif %}
-    <li><a href="{% url maps_new %}?copy={{map.id}}">{% trans "Duplicate map" %}</a></li>
+            <li class="nav-header">{% trans "Manage" %}</li>
+            {% has_obj_perm user map "maps.change_map" as can_change %}
+            {% has_obj_perm user map "maps.delete_map" as can_delete %}
+            <li><a href="{% url maps_view map.id %}">{% trans "View or edit this map" %}</a></li>
+            {% if can_change %}
+            <li><a href="{% url maps_controller map.id %}?describe">{% trans "Edit metadata" %}</a></li>
+            {% endif %}
+            {% if can_delete %}
+            <li><a href="{% url maps_controller map.id %}?remove">{% trans "Delete map" %}</a></li>
+            {% endif %}
+            <li><a href="{% url maps_new %}?copy={{map.id}}">{% trans "Duplicate map" %}</a></li>
 
-    {% has_obj_perm user map "maps.change_map_permissions" as can_change_permissions %}
-    {% if can_change_permissions %}
-    <li class="nav-header">{% trans "Permissions" %}</li>
-    <li><div id="permissions_form"></div></li>
-    {% endif %}
-  </ul>
-{% endblock %}
-
+            {% has_obj_perm user map "maps.change_map_permissions" as can_change_permissions %}
+            {% if can_change_permissions %}
+            <li class="nav-header">{% trans "Permissions" %}</li>
+            <li><div id="permissions_form"></div></li>
+            {% endif %}
+        </ul>
+        {% endblock %}
+    </div>
+</div>
 {% block extra_script %}
 {% if request.user.is_authenticated %}
-	{% user_rating_js request.user map "map" %}
+{% user_rating_js request.user map "map" %}
 {% else %}
-	<script src="{{ STATIC_URL }}agon_ratings/js/jquery.raty.js"></script>
+<script src="{{ STATIC_URL }}agon_ratings/js/jquery.raty.js"></script>
 {% endif %}
 <script type="text/javascript">
-	$(function() {
-		$('div.overall_rating').raty({
-			half: true,
-			readOnly: true,
-			start: $('div.overall_rating').data('rating'),
-			path: "{{ STATIC_URL }}agon_ratings/img/"
-		});
-	});
+$(function() {
+    $('div.overall_rating').raty({
+        half: true,
+        readOnly: true,
+        start: $('div.overall_rating').data('rating'),
+        path: "{{ STATIC_URL }}agon_ratings/img/"
+    });
+});
 
-	(function() {
-		var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-		po.src = 'https://apis.google.com/js/plusone.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-	})();
+(function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+})();
 </script>
+{% endblock %}
 {% endblock %}

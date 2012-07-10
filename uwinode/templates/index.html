@@ -169,7 +169,7 @@
     }
 
     .activity IMG.raty-2 {
-    width:12px;
+        width:12px;
     }
     .activity_log_header{
         background-position: center center;
@@ -180,9 +180,9 @@
     }
     .activity{
         background-color: white;
+        margin: 4px 21px 10px;
         padding: 10px 20px;
-    margin-bottom:10px;
-    width:300px;
+        width: 256px;
     }
     .user_flag{
         background-position: left center;
@@ -334,12 +334,12 @@
 
 
 <div class="span4">
-  {% block sidebar %}
-  <div class="activity_log_header"> </div>
-  {% for layer in layers %}
-  {% include "maps/latest_layers.html" with layer=layer %}
-  {% endfor %}
-  {% endblock %}
+    {% block sidebar %}
+    <div class="activity_log_header"> </div>
+    {% for layer in layers %}
+    {% include "maps/latest_layers.html" with layer=layer %}
+    {% endfor %}
+    {% endblock %}
 </div>
 {% endblock %}
 
@@ -347,14 +347,14 @@
 
 <script src="{{ STATIC_URL }}agon_ratings/js/jquery.raty.js"></script>
 <script type="text/javascript">
-	$(function() {
-		$('div.overall_rating').raty({
-			half: true,
-			readOnly: true,
-			start: $('div.overall_rating').data('rating'),
-			path: "{{ STATIC_URL }}agon_ratings/img/"
-		});
-	});
+    $(function() {
+        $('div.overall_rating').raty({
+            half: true,
+            readOnly: true,
+            start: $('div.overall_rating').data('rating'),
+            path: "{{ STATIC_URL }}agon_ratings/img/"
+        });
+    });
 </script>
 {% endblock %}
 

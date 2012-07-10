@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Search Data" %} - {{ block.super }} {% endblock %}
+
+{% block head %}
+{% include "geonode/ext_header.html" %}
+{% include "geonode/app_header.html" %}
+{% include "geonode/geo_header.html" %}
+{{ block.super }}
+<script type="text/javascript">
+    Ext.onReady(function(){
+        {% autoescape off %}
+
+        var bbox = new GeoNode.BoundingBoxWidget({
+            proxy: "/proxy/?url=",
+            viewerConfig: {{ viewer_config }},
+            renderTo: 'refine'
+        });
+
+        var searchTable = new GeoNode.SearchTable({
+            renderTo: 'search_results',
+            trackSelection: true,
+            permalinkURL: '{% url data_search %}',
+            searchURL: '{% url data_search_api %}',
+            layerDetailURL: '{% url data_search_detail %}',
+            constraints: [bbox],
+            searchParams: {{init_search}}
+        });
+        searchTable.hookupSearchButtons('refine');
+    
+        var dataCart = new GeoNode.DataCart({
+            store: searchTable.dataCart,
+            renderTo: 'data_cart'
+        });
+    
+        var dataOps = new GeoNode.DataCartOps({
+            cart: dataCart,
+            renderTo: 'data_ops',
+      
+            begin_download_url: '{% url data_download %}',
+            stop_download_url: '{{site}}geoserver/rest/process/batchDownload/kill/',
+            download_url: '{{site}}geoserver/rest/process/batchDownload/download/'
+        });
+    
+        {% endautoescape %}
+    });
+</script>
+{% endblock %}
+<style>
+    {%block morestyles%}
+    .front_h3{
+        color: #de6125;
+        font-size:30px;
+        text-transform: uppercase;
+    }
+    .front_h2{
+        color: #de6125;
+        font-size:20px;
+    }
+    .sep_strip{
+        height: 5px;
+        /*  margin-left: -50%;*/
+        margin-top: 10px;
+        position: absolute;
+        top: 385px;
+        width: 94%;
+        background-image: url({{ STATIC_URL }}theme/img/themeimgs/strip.png);
+    }
+    .content_area{
+        background-color: white;
+        min-height: 530px !important;
+        padding: 10px;
+        margin-bottom:10px;
+        width: 103%;
+    }
+    #latest_feed{
+        /* margin-left:10px;*/
+        height: 100px;
+        margin-bottom: 45px;
+        width: 105%;
+    }
+    .feed{
+        background-color: white;
+        display: block;
+        float: left;
+        /* margin-right: 10px;*/
+        width: 330px;
+        padding: 5px 5px 0;
+    }
+    .feed_pic{
+        height: 100px;
+        width:100px;
+        float: left;
+        margin-right: 20px;
+    }
+    .content_body{
+        margin-top:-90px;
+    }
+    #refine h3{
+        background-color: #6DBAC0;
+        background-color: #6acbdc;
+        color: white;
+        padding-left: 20px;
+    }
+    #data_cart{
+        border: 2px solid #519CA9;
+        margin-bottom: 10px;
+        padding: 3px;
+    }
+    #data_ops ul{
+        margin-left:0px;
+    }
+    #ext-gen6{
+        border: 1px solid #d1d1d1;
+    }
+    .x-grid3-col-title a{
+        text-transform: capitalize;
+        color:#5fbcc4;
+    }
+    {% endblock %}    
+</style>
+
+
+{% block body_outer %}
+<h1><small class="front_h2">{% trans "Latest Data Posts" %}</small></h1>
+
+<div id="latest_feed">
+    <div class="feed span4">
+        <div class="user_flag pull-right">  </div> 
+        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
+        <div class="overall_rating"></div>
+        <h4 style="text-transform: capitalize;">Billy Jean</h4>
+        <h6>June 1, 2010</h6>
+        <p>this is alot of conversation about something im not sure. 
+            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+    </div>
+    <div class="feed span4">
+        <div class="user_flag pull-right">  </div> 
+        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
+        <div class="overall_rating"></div>
+        <h4 style="text-transform: capitalize;">Sammy Joe</h4>
+        <h6>June 2, 2010</h6>
+        <p>this is alot of conversation about something im not sure. 
+            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+    </div>
+    <div class="feed span4">
+        <div class="user_flag pull-right">  </div> 
+        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
+        <div class="overall_rating"></div>
+        <h4 style="text-transform: capitalize;">Mike Ross</h4>
+        <h6>July 5, 2010</h6>
+        <p>56 Char. this is alot of conversation about something.
+            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+    </div>
+
+</div>
+<div class="sep_strip"></div>
+
+<div class="content_area">
+    <h1 style="margin-bottom: 20px;">
+
+        <span class="subtitle">{% trans "Search for geospatial" %}</span>
+        <small class="front_h3">{% trans "Data" %}</small> 
+    </h1>
+
+    <div class="span8 ">
+        {% block main %}
+        <div class="block">
+            <div id="search_results"></div>  
+
+            <p class="explain">{%trans "Click the <b>+</b> on any row to show layer metadata or download in PDF, KML, GeoTIFF, or SHP." %}
+                {% trans "To bookmark your current search use this" %} <a href="#" class="permalink">{% trans "permalink" %}</a>
+            </p>
+        </div>
+        {% endblock %}
+    </div>
+
+    {% block sidebar %}
+    <div class="span3" style=" margin-left: 70px;">      
+        <div id="refine" class="block">
+            <h3>{% trans "Refine Search" %}</h3>
+            <div class="bbox-controls">
+                <div class="bbox-enabled"><input type="checkbox" /> {% trans "By area" %}</div>
+                <p><span class="explain">{% blocktrans %}Limit the search to data that includes features in the displayed area.{% endblocktrans %}</span></p>
+                <div class="bbox-expand">
+                </div>
+            </div>
+            <div class="search-button">Refine</div>
+        </div>
+        <div class="block">
+            <h3 style="color:#519ca9;">{% trans "Selected Data" %}</h3>
+            <p><span class="explain">{% blocktrans %}Use the checkboxes in the search results to add data to your selection.{% endblocktrans%}</span></p>
+            <div id="selection">
+                <div id="data_cart"></div>
+            </div>
+            <div id="data_ops">
+                <ul>
+                    <li><a href="#" class="create-map">{% trans "Create a new map" %}</a></li>
+                    <li><span class="export">{% trans "Export selected" %}:</span>
+                        <a href="#mixed" class="batch-download">Zip</a> 
+                    </li>
+                    <!--    <li><span class="export">{% trans "Export selected" %}:</span>
+                            <a href="#shp" class="batch-download">Shapefile</a>, 
+                            <a href="#geotiff" class="batch-download">GeoTiff</a>
+                        </li> -->
+                </ul>
+                <form id="create_map_form" action="{% url maps_new %}" method="POST">
+                </form>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+
