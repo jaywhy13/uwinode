@@ -281,7 +281,10 @@ $(function(){
             <li class="nav-header">{% trans "Owner" %}:</li>
             <li>
                 <p> <strong></strong>
-                    <a href="{{ layer.owner.get_profile.get_absolute_url }}"> {{ layer.owner.username }} </a>
+                    Uploaded by <a href="{{
+                    layer.owner.get_profile.get_absolute_url }}">
+		    {% firstof layer.owner.get_full_name layer.owner.username %} </a> on 
+		  {{ layer.date|date:"D, N d Y"}}
                 </p>
             </li>
             {% endif %}
@@ -291,7 +294,8 @@ $(function(){
             <li></li>
             <p> <strong></strong>
                 {% if layer.poc.user %}
-                <a href="{{ layer.poc.user.get_profile.get_absolute_url }}"> {{ layer.poc.user.username }} </a>
+                <a href="{{
+                layer.poc.user.get_profile.get_absolute_url }}"> {% firstof layer.poc.user.get_full_name layer.poc.user.username %} </a>
                 {% else %}
             <ul>
                 {% if layer.poc.name %}<li><strong>{% trans "Name" %}:</strong> {{ layer.poc.name}}</li>{% endif %}
