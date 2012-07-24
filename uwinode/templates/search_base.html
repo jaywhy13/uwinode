@@ -88,7 +88,7 @@
         width: 330px;
         padding: 5px 5px 0;
     }
-    .feed_pic{
+    .feed IMG {
         height: 100px;
         width:100px;
         float: left;
@@ -126,34 +126,11 @@
 <h1><small class="front_h2">{% trans "Latest Data Posts" %}</small></h1>
 
 <div id="latest_feed">
-    <div class="feed span4">
-        <div class="user_flag pull-right">  </div> 
-        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
-        <div class="overall_rating"></div>
-        <h4 style="text-transform: capitalize;">Billy Jean</h4>
-        <h6>June 1, 2010</h6>
-        <p>this is alot of conversation about something im not sure. 
-            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
-    </div>
-    <div class="feed span4">
-        <div class="user_flag pull-right">  </div> 
-        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
-        <div class="overall_rating"></div>
-        <h4 style="text-transform: capitalize;">Sammy Joe</h4>
-        <h6>June 2, 2010</h6>
-        <p>this is alot of conversation about something im not sure. 
-            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
-    </div>
-    <div class="feed span4">
-        <div class="user_flag pull-right">  </div> 
-        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
-        <div class="overall_rating"></div>
-        <h4 style="text-transform: capitalize;">Mike Ross</h4>
-        <h6>July 5, 2010</h6>
-        <p>56 Char. this is alot of conversation about something.
-            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
-    </div>
-
+  {% for layer in latest_layers %}
+  {% include "maps/latest_data_post.html" with layer=layer %}
+  {% empty %}
+  No data
+  {% endfor %}
 </div>
 <div class="sep_strip"></div>
 

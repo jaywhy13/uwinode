@@ -1,0 +1,13 @@
+{% load layer_extras %}
+{% load i18n %}
+{% load agon_ratings_tags %}
+
+<div class="feed span4">
+  <div class="user_flag pull-right">  </div> 
+  {% map_thumbnail map 100 100 %}
+  <h4 style="text-transform:uppercase;">{{map.title|truncatewords:4}}</h4>
+  <h4 style="text-transform: capitalize;">{% firstof map.owner.get_full_name map.owner.username %}</h4>
+  <h6>{{ map.date|date:"D d M Y" }}</h6>
+  <p>{{ map.abstract }}<br />
+    <a class="btn btn-primary btn-mini"href="{{ map.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+</div>

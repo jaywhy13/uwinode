@@ -47,13 +47,18 @@
         float: left;
         /* margin-right: 10px;*/
         width: 330px;
-        padding: 5px 5px 0;
+        padding: 5px 5px 5px;
     }
-    .feed_pic{
+    .thumbmail {
         height: 100px;
         width:100px;
         float: left;
         margin-right: 20px;
+    }
+
+    .layer_thumbnail {
+    top:0px;
+    position:absolute;
     }
     .content_body{
         margin-top:-90px;
@@ -93,33 +98,11 @@
 
 
 <div id="latest_feed">
-    <div class="feed span4">
-        <div class="user_flag pull-right">  </div> 
-        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
-        <div class="overall_rating"></div>
-        <h4 style="text-transform: capitalize;">Billy Jean</h4>
-        <h6>June 1, 2010</h6>
-        <p>this is alot of conversation about something im not sure. 
-            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
-    </div>
-    <div class="feed span4">
-        <div class="user_flag pull-right">  </div> 
-        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
-        <div class="overall_rating"></div>
-        <h4 style="text-transform: capitalize;">Sammy Joe</h4>
-        <h6>June 2, 2010</h6>
-        <p>this is alot of conversation about something im not sure. 
-            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
-    </div>
-    <div class="feed span4">
-        <div class="user_flag pull-right">  </div> 
-        <img alt="" src="http://placehold.it/100x100" class="feed_pic"> <h4 style="text-transform:uppercase;">Title</h4>
-        <div class="overall_rating"></div>
-        <h4 style="text-transform: capitalize;">Mike Ross</h4>
-        <h6>July 5, 2010</h6>
-        <p>56 Char. this is alot of conversation about something.
-            <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
-    </div>
+  {% for map in latest_maps %}
+  {% include "maps/latest_map_post.html" with map=map %}
+  {% empty %}
+  No data
+  {% endfor %}
 
 </div>
 <div class="sep_strip"></div>

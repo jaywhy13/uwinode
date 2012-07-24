@@ -7,14 +7,6 @@ def get_latest_maps(user):
     maps = Map.objects.order_by('-last_modified')
     count = maps.count()
     limit = LATEST_LIMIT
-
-    try:
-        limit = int(params.get('limit', LATEST_LIMIT))
-    except Exception:
-        pass
-    
-    limit = min(limit, LATEST_LIMIT)
-    
     latest = []
 
     if count:
@@ -30,13 +22,6 @@ def get_latest_layers(user):
     layers = Layer.objects.order_by('-date')
     count = layers.count()
     limit = LATEST_LIMIT
-
-    try:
-        limit = int(params.get('limit', LATEST_LIMIT))
-    except Exception:
-        pass
-    
-    limit = min(limit, LATEST_LIMIT)
     
     latest = []
     
@@ -47,10 +32,10 @@ def get_latest_layers(user):
                 if len(latest) >= limit:
                     break
     return latest
-    
 
 def home(request):
     layers = get_latest_layers(request.user)
     maps = get_latest_maps(request.user)
     context = {'layers' : layers, 'maps' : maps }
     return render_to_response("index.html", RequestContext(request,context))
+

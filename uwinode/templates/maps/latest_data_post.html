@@ -1,0 +1,16 @@
+{% load layer_extras %}
+{% load countries_tags %}
+{% load i18n %}
+{% load agon_ratings_tags %}
+
+<div class="feed span4">
+  <div class="user_flag pull-right">  </div> 
+  {% layer_thumbnail layer 100 100 %}
+  <h4 style="text-transform:uppercase;">{{layer.title|truncatewords:4}}</h4>
+  {% overall_rating layer "layer" as layer_rating %}
+  <div class="overall_rating" data-rating="{{ layer_rating }}"></div>
+  <h4 style="text-transform: capitalize;">{% firstof layer.owner.get_full_name layer.owner.username %}</h4>
+  <h6>{{ layer.date|date:"D d M Y" }}</h6>
+  <p>{{ layer.abstract }}<br />
+    <a class="btn btn-primary btn-mini"href="{{ layer.get_absolute_url }}"> {% trans "More" %}>>   </a></p>  
+</div>
