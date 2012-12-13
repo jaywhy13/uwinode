@@ -1,3 +1,7 @@
 *.*~
 *.pyc
 development.db
+*.log
+*.pot
+local_settings.py
+
